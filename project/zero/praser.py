@@ -33,18 +33,29 @@ class _Parser:
             "G": self.logic.go_to
         }
 
+
+    def block_checker(line: str) -> bool:
+        if line.startswith("[") and line.endswith("]"):
+            return True
+        return False
+
     def first_last_state(self) -> str:
         return self.logic.first_last_state()
 
 
-def parser(commands: str, with_exceptions: ExceptionState = True, with_graphic: bool = False) -> Literal[0, 1]:
+def parser(file: str, with_exceptions: ExceptionState = True, with_graphic: bool = False) -> Literal[0, 1]:
     try:
-        _parser = _Parser(commands, with_exceptions)
-        if with_graphic:
-            print(_parser.first_last_state())
-        return 1
+        with open(file) as file:
+            _parser = _Parser(file, with_exceptions)
+            if with_graphic:
+                print(_parser.first_last_state())
+            return 1
     except InvalidCommand:
         return 0
 
 
 print(parser("1,2,3,4,5,6,7",with_graphic=True), )
+
+str = ""
+
+str = str.split("]")[0]
