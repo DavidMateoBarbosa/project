@@ -1,5 +1,6 @@
 ROBOT_R
-VARS nom , x , y , one ;
+VARS nom , x , y , one
+;
 PROCS
 putCB [ |c , b | assignTo : 1 , one ;
 put : c , chips ; put : b , balloons ]

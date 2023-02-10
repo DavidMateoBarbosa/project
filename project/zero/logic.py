@@ -326,6 +326,14 @@ class LogicAndGraphic:
         self._get_cell(chip.position).set_chip(chip)    
         return self._stack_gravity(self._get_cell(chip.prev_position()).chip)
 
+    #EXTRAUTILS
+    def canMoveFoward(self) -> bool:
+        if not self._limit_checker(self.robot.new_position()): 
+            return False
+        if not self._get_cell(self.robot.new_position()).is_blank():
+            return False
+        return True
+
     def first_last_state(self) -> str:
         return  self.first + "\n" + self.__repr__()
 
