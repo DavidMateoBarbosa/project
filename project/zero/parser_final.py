@@ -7,6 +7,8 @@ import os
 
 FileDescriptorOrPath: TypeAlias = int | str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
+ParseProcess: TypeAlias = None | NoReturn
+
 class _Parser:
     def __init__(self, file: FileDescriptorOrPath) -> None:
         self.bot_logic: LogicAndGraphic = LogicAndGraphic()
@@ -27,6 +29,9 @@ class _Parser:
             "nop": 0
         }
         self.builtin_logic: dict[str, int] = {
+            "while,do": -1,
+            "if,then": -1,
+            "repeat": -1,
             "facing": 1,
             "canPut": 2,
             "canPick": 2,
@@ -36,13 +41,12 @@ class _Parser:
             "canJumpToThe": 2,
             "not": 1
         }
+        self.clean_unused()
         if self.script[0].replace("\n","").replace(" ", "") != "ROBOT_R":
             TypeError("all .rbt scripts need startswith ROBOT_R")
         self.script = self.script[1:]
-        self.clean_unused()
         self.load_vars()
-        print(self.vars)
-        print(self.script)
+        self.load_process()
     
 
     def load_vars(self) -> None:
@@ -51,7 +55,34 @@ class _Parser:
         if not line.endswith(";"):
             raise TypeError("missing ';' at last int the line")
         for name in line.split(","):
-            self.vars[name] = None
+            self.vars[name.replace(";", "")] = None
+        self.script = self.script[1:]
+
+    def load_process(self) -> None:
+        if self.script[0] == "PROCS":
+            self.script = self.script[1:]
+            self.process: list[str] = []
+            index = None
+            for line in self.script:
+                if not line.startswith("["):
+                    self.process.append(line)
+                else:
+                    if index is None:
+                        index = self.script.index(line)
+            self.script = self.script[index:]
+            self._wrap_process()
+        elif self.script[0].startswith("[") or self.script[0] == "[":
+            return None
+        else:
+            raise TypeError("function")
+
+    def _wrap_process(self) -> None:
+        process = ""
+        for line in self.process:
+            process += line.replace(" ", "")
+        for index in range(len(process)):
+            print(process)
+            break
 
 
     def clean_unused(self) -> None:
@@ -76,8 +107,20 @@ class _Parser:
         file: FileDescriptorOrPath,
         *args, **kwargs
     ) -> list[str]:
+        name = file.split("/")
+        if len(name) == 1:
+            name = file.split("\\")
+        name = name[-1]
+        if not name.endswith(".rbt"):
+            raise TypeError(f"wrong program extension, robot file must be endswith '.rbt', not '.{name.split('.')[-1]}'")
         with open(file, *args, **kwargs) as wraper:
             return list(wraper)
 
 
-_Parser(r"C:\Users\LoganTaurus\Desktop\project\bot.txt")
+_Parser(r"C:\Users\LoganTaurus\Desktop\project\bot.rbt")
+
+@overload
+def parser(file: FileDescriptorOrPath = "needs abs path") -> ParseProcess: ...
+def parser(file: FileDescriptorOrPath) -> ParseProcess:
+    r"file must be ends in '.rbt'"
+    _Parser(file)

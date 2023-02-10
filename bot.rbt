@@ -1,6 +1,6 @@
 ROBOT_R
-VARS nom , x , y , one
-;
+
+VARS nom , x , y , one ;
 PROCS
 putCB [ |c , b | assignTo : 1 , one ;
 put : c , chips ; put : b , balloons ]
@@ -11,7 +11,7 @@ while : canMovetoThe : 1 , north do: [ moveInDir : 1 , north ] od
 
 
 goWest [ | | if : canMoveInDir : 1 , west then: [ MoveInDir : 1 ,
-west ] else : nop : ]
+west ] else : [nop] ]
 
 [
 goto : 3 , 3;
